@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-d_im = cv2.imread("depth.png")
+d_im = cv2.imread("image_123986672.JPG")
 d_im = cv2.cvtColor(d_im, cv2.COLOR_BGR2GRAY)
 d_im = d_im.astype("float64")
 
@@ -46,4 +46,4 @@ heatmapshow = cv2.applyColorMap(heatmapshow, cv2.COLORMAP_JET)
 # cv2.waitKey(0)
 #
 # retval = cv2.imwrite('/home/linfeng/PycharmProjects/sitedetection/normals.jpg', heatmapshow)
-cv2.imwrite("steepness.jpg",heatmapshow)
+cv2.imwrite("steepness_2.jpg",heatmapshow)
