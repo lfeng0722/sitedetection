@@ -1,24 +1,36 @@
+import os
 import numpy as np
+from sklearn.cluster import KMeans
 import cv2
-import math
+from imutils import build_montages
+import matplotlib.image as imgplt
 
-img_gray = cv2.imread('test_2.JPG')
+image_path = []
+all_images = []
+images = os.listdir('./images')
 
-flatness = np.zeros_like(img_gray)
-img_edges = cv2.Canny(img_gray, 1, 250)
+for image_name in images:
+    image_path.append('./images/' + image_name)
+for path in image_path:
+    image = imgplt.imread(path)
+    image = image.reshape(-1, )
+    all_images.append(image)
 
-x , y = np.nonzero(img_edges)
+clt = KMeans(n_clusters=2)
+clt.fit(all_images)
+labelIDs = np.unique(clt.labels_)
 
-for m in range(np.shape(img_gray)[0]):
-    for n in range(np.shape(img_gray)[1]):
-        flat = []
-        for i in range(len(x)):
-            flat.append(math.sqrt(math.pow((m - x[i]), 2) + math.pow((n - y[i]), 2)))
-            # print(flat)
-        flatness[m][n] = min(flat)
+for labelID in labelIDs:
+    idxs = np.where(clt.labels_ == labelID)[0]
+    idxs = np.random.choice(idxs, size=min(25, len(idxs)),
+                            replace=False)
+    show_box = []
+    for i in idxs:
+        image = cv2.imread(image_path[i])
+        image = cv2.resize(image, (96, 96))
+        show_box.append(image)
+    montage = build_montages(show_box, (96, 96), (5, 5))[0]
 
-heatmapshow = None
-heatmapshow = cv2.normalize(flatness, heatmapshow, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-heatmapshow = cv2.applyColorMap(heatmapshow, cv2.COLORMAP_JET)
-cv2.imshow('final',heatmapshow)
-cv2.waitKey(0)
+    title = "Type {}".format(labelID)
+    cv2.imshow(title, montage)
+    cv2.waitKey(0)
